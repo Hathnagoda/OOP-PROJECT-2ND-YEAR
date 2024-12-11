@@ -1,12 +1,12 @@
 public class Vendor implements Runnable {
     private final TicketPool ticketPool;
     private final int vendorId;
-    private final int ticketReleaseRate;
+    private final int ticketReleaseInterval; // Rate as seconds
 
-    public Vendor(TicketPool ticketPool, int vendorId, int ticketReleaseRate) {
+    public Vendor(TicketPool ticketPool, int vendorId, int ticketReleaseInterval) {
         this.ticketPool = ticketPool;
         this.vendorId = vendorId;
-        this.ticketReleaseRate = ticketReleaseRate;
+        this.ticketReleaseInterval = ticketReleaseInterval;
     }
 
     @Override
@@ -15,7 +15,6 @@ public class Vendor implements Runnable {
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 synchronized (ticketPool) {
-                    // Stop if total tickets limit is reached
                     if (ticketPool.isTotalTicketsLimitReached()) {
                         System.out.println("Vendor " + vendorId + " stopping. Total tickets limit reached.");
                         return;
@@ -33,7 +32,8 @@ public class Vendor implements Runnable {
                     System.out.println("Vendor " + vendorId + " added: " + ticket);
                 }
 
-                Thread.sleep(1000 / ticketReleaseRate);
+                // Sleep for the input interval (seconds converted to milliseconds)
+                Thread.sleep(ticketReleaseInterval * 1000);
             }
         } catch (InterruptedException e) {
             System.out.println("Vendor " + vendorId + " stopped.");
